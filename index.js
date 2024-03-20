@@ -24,47 +24,121 @@ const PRIVATE_APP_ACCESS = '';
 
 /** 
 * * This is sample code to give you a reference for how you should structure your calls. 
+*/
 
-* * App.get sample
-app.get('/contacts', async (req, res) => {
-    const contacts = 'https://api.hubspot.com/crm/v3/objects/contacts';
+app.get('/', async (req, res) => {
+    const pet = 'https://api.hubapi.com/crm/v3/objects/2-26149395?limit=10&properties=name&properties=type&properties=leg_count&archived=false';
     const headers = {
         Authorization: `Bearer ${PRIVATE_APP_ACCESS}`,
         'Content-Type': 'application/json'
     }
     try {
-        const resp = await axios.get(contacts, { headers });
+        const resp = await axios.get(pet, { headers });
         const data = resp.data.results;
-        res.render('contacts', { title: 'Contacts | HubSpot APIs', data });      
+        console.log(data);
+        res.render('pets', { title: 'Update Custom Object Form | Integrating With HubSpot I Practicum', data });
     } catch (error) {
         console.error(error);
     }
 });
 
-* * App.post sample
-app.post('/update', async (req, res) => {
-    const update = {
+//Pets add view
+app.get('/add', async (req, res) => {
+    res.render('add_pets', { title: 'Update Custom Object Form | Integrating With HubSpot I Practicum' });
+});
+
+app.post('/add', async (req, res) => {
+    const add = {
         properties: {
-            "favorite_book": req.body.newVal
+            "name": req.body.petName,
+            "type": req.body.petType,
+            "leg_count": req.body.legCount,
         }
     }
 
-    const email = req.query.email;
-    const updateContact = `https://api.hubapi.com/crm/v3/objects/contacts/${email}?idProperty=email`;
+    const addPets = `https://api.hubapi.com/crm/v3/objects/2-26149395`;
     const headers = {
         Authorization: `Bearer ${PRIVATE_APP_ACCESS}`,
         'Content-Type': 'application/json'
     };
 
     try { 
-        await axios.patch(updateContact, update, { headers } );
-        res.redirect('back');
+        await axios.post(addPets, add, { headers } );
+        const pet = 'https://api.hubapi.com/crm/v3/objects/2-26149395?limit=10&properties=name&properties=type&properties=leg_count&archived=false';
+        const resp = await axios.get(pet, { headers });
+        const data = resp.data.results;
+        res.render('pets', { title: 'Update Custom Object Form | Integrating With HubSpot I Practicum', data });
+    } catch(err) {
+        console.error(err);
+    }
+});
+
+// Pets update table view
+app.get('/pet-update', async (req, res) => {
+    const pet = 'https://api.hubapi.com/crm/v3/objects/2-26149395?limit=10&properties=name&properties=type&properties=leg_count&archived=false';
+    const headers = {
+        Authorization: `Bearer ${PRIVATE_APP_ACCESS}`,
+        'Content-Type': 'application/json'
+    }
+    try {
+        const resp = await axios.get(pet, { headers });
+        const data = resp.data.results;
+        res.render('update_pet', { title: 'Update Custom Object Form | Integrating With HubSpot I Practicum', data });      
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+
+// Pets update view
+app.get('/update-cobj', async (req, res) => {
+
+    const id = req.query.ObjectId;
+    const getPet = `https://api.hubapi.com/crm/v3/objects/2-26149395/${id}?properties=name,type,leg_count`;
+    const headers = {
+        Authorization: `Bearer ${PRIVATE_APP_ACCESS}`,
+        'Content-Type': 'application/json'
+    };
+
+    try {
+        const response = await axios.get(getPet, { headers });
+        const data = response.data;
+
+        res.render('edit_pet', {name: data.properties.name, type: data.properties.type, leg_count: data.properties.leg_count});
+        
+    } catch(err) {
+        console.error(err);
+    }
+});
+
+app.post('/update-cobj', async (req, res) => {
+    
+    const update = {
+        properties: {
+            "name": req.body.petName,
+            "type": req.body.petType,
+            "leg_count": req.body.legCount,
+        }
+    }
+
+    const id = req.query.ObjectId;
+    const updatePet = `https://api.hubapi.com/crm/v3/objects/2-26149395/${id}`;
+    const headers = {
+        Authorization: `Bearer ${PRIVATE_APP_ACCESS}`,
+        'Content-Type': 'application/json'
+    };
+
+    try { 
+        await axios.patch(updatePet, update, { headers } );
+        const pet = 'https://api.hubapi.com/crm/v3/objects/2-26149395?properties=name&properties=type&properties=leg_count&archived=false';
+        const resp = await axios.get(pet, { headers });
+        const data = resp.data.results;
+        res.render('pets', { title: 'Update Custom Object Form | Integrating With HubSpot I Practicum', data });    
     } catch(err) {
         console.error(err);
     }
 
 });
-*/
 
 
 // * Localhost
